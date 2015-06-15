@@ -18,4 +18,4 @@ if ($paymenttype=='paypal') {
 
 ```
 
-/play trololo
+:arrow_up:

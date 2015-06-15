@@ -44,53 +44,7 @@ class PaypalRestOrder {
 	protected function set_defaults() {
 		
 	}
-	
-	/*
 
- 
-	 
-		$paypal->addButtonParam($names, $values);
-		$paypal->addButtonParam('charset', 'UTF-8');
-		$i=1;
-
-		foreach($order->products as $product)
-		{
-			$val=trim($product['qty']);
-			if(!empty($val))
-			{
-				$names = array( "amount_$i", "quantity_$i",  "item_name_$i");
-				$values = array( str_replace(",",".",$product['final_price']),$product['qty'],  $product['name']);
-				$paypal->addButtonParam($names, $values);
-				$i++;
-			}
-		}
-		if ($bearbeitungsgebuehr)
-		{
-			$names = array( "amount_$i", "quantity_$i",  "item_name_$i");
-			$values = array( $bearbeitungsgebuehr, 1,  'Bearbeitungsgebühren');
-			$paypal->addButtonParam($names, $values);
-			$i++;
-		}
-
-		if ($actioncodediscount)
-		{
-			$names = array( "amount_$i", "quantity_$i",  "item_name_$i");
-			$values = array( 0 - $order->actioncode['discount'], 1,  $order->actioncode['description']);
-			$paypal->addButtonParam($names, $values);
-			$i++;
-		}
-
-		$result = $paypal->encryptButtonData();
-		if ($result !== PP_ERROR_OK)
-		{
-			// Something went wrong
-			trigger_error("Received Error #".$result);
-		}
-		# Hier folgt der verschl?sselte Warenkorb
-		$paypal_encrypted =  '<input type="hidden" name="encrypted" value="' . $paypal->getButton() . '">';
-		*/
-	
-	
     public function create_payment_link($order,$custom,$orderdesc='Testzahlung für Testartikel') {
 		$payer = new Payer();
 		$payer->setPaymentMethod("paypal");
