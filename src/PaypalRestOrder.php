@@ -1,6 +1,6 @@
 <?php
 
-namespace Debugteam\PaypalRestOrderClass;
+namespace Debugteam\Paypalrestorderclass;
 
 use PayPal\Api\Amount;
 use PayPal\Api\Details;
@@ -14,18 +14,27 @@ use PayPal\Api\PaymentExecution;
 
 class PaypalRestOrder {
 
-	
-	protected function create_item_list() {
-		$item1 = new Item();
-		$item1->setName('Testartikel')
-			->setCurrency('EUR')
-			->setQuantity(1)
-			->setSku("123123") // Similar to `item_number` in Classic API
-			->setPrice(1);
-		
+	protected function create_item_list($order) {
+		foreach($order->products as $product) {
+			if(!empty(trim($product['qty']))) {
+				$item = new Item();
+				$item->setName($product['name'])->setCurrency($order->info['currency'])->setQuantity($product['qty'])->setSku($product['id'])->setPrice(number_format($product['final_price'],2,'.',''));
+				$item[] = $item;
+			}
+		}
+		if ($order->getBearbeitungsgebuehr()) {
+			$item = new Item();
+			$item->setName('Bearbeitungsgebühren')->setCurrency($order->info['currency'])->setQuantity(1)->setSku(9999)->setPrice(number_format($order->getBearbeitungsgebuehr(),2,'.',''));
+			$item[] = $item;			
+		}
+		if ($order->getActioncodeDiscount()) {
+			$item = new Item();
+			$item->setName($order->actioncode['description'])->setCurrency($order->info['currency'])->setQuantity(1)->setSku(9998)->setPrice(0 - number_format($order->actioncode['discount'],2,'.',''));
+			$item[] = $item;
+		}		
 		$itemList = new ItemList();
-		$itemList->setItems(array($item1));
-		return $itemList
+		$itemList->setItems($item);
+		return $itemList;
 	}
 	
 	protected function calculate_totals() {
@@ -36,54 +45,76 @@ class PaypalRestOrder {
 		
 	}
 	
+	/*
+
+ 
+	 
+		$paypal->addButtonParam($names, $values);
+		$paypal->addButtonParam('charset', 'UTF-8');
+		$i=1;
+
+		foreach($order->products as $product)
+		{
+			$val=trim($product['qty']);
+			if(!empty($val))
+			{
+				$names = array( "amount_$i", "quantity_$i",  "item_name_$i");
+				$values = array( str_replace(",",".",$product['final_price']),$product['qty'],  $product['name']);
+				$paypal->addButtonParam($names, $values);
+				$i++;
+			}
+		}
+		if ($bearbeitungsgebuehr)
+		{
+			$names = array( "amount_$i", "quantity_$i",  "item_name_$i");
+			$values = array( $bearbeitungsgebuehr, 1,  'Bearbeitungsgebühren');
+			$paypal->addButtonParam($names, $values);
+			$i++;
+		}
+
+		if ($actioncodediscount)
+		{
+			$names = array( "amount_$i", "quantity_$i",  "item_name_$i");
+			$values = array( 0 - $order->actioncode['discount'], 1,  $order->actioncode['description']);
+			$paypal->addButtonParam($names, $values);
+			$i++;
+		}
+
+		$result = $paypal->encryptButtonData();
+		if ($result !== PP_ERROR_OK)
+		{
+			// Something went wrong
+			trigger_error("Received Error #".$result);
+		}
+		# Hier folgt der verschl?sselte Warenkorb
+		$paypal_encrypted =  '<input type="hidden" name="encrypted" value="' . $paypal->getButton() . '">';
+		*/
 	
-    public function create_payment_link($order) {
-		
+	
+    public function create_payment_link($order,$custom,$orderdesc='Testzahlung für Testartikel') {
 		$payer = new Payer();
 		$payer->setPaymentMethod("paypal");
-		
-		
+		$itemList = $this->create_item_list($order);
 		$details = new Details();
-		$details->setShipping(0)
-			->setTax(0)
-			->setSubtotal(1);
-		
+		$details->setShipping(0)->setTax(0)->setSubtotal(1);
 		$amount = new Amount();
-		$amount->setCurrency("EUR")
-			->setTotal(1)
-			->setDetails($details);
-		
+		$amount->setCurrency($order->info['currency'])->setTotal(1)->setDetails($details);
 		$transaction = new Transaction();
-		$transaction->setAmount($amount)
-			->setItemList($itemList)
-			->setDescription("Testzahlung für Testartikel")
-			->setInvoiceNumber(uniqid());
-		
+		$transaction->setAmount($amount)->setItemList($itemList)->setDescription($orderdesc)->setInvoiceNumber($custom);
 		$redirectUrls = new RedirectUrls();
-		$redirectUrls->setReturnUrl(BASE_URL."/index.php?page=paypaltest&action=succeededpayment")
-			->setCancelUrl(BASE_URL."/index.php?page=paypaltest&action=failedpayment");
-		
+		$redirectUrls->setReturnUrl(BASE_URL."/danke.php?action=succeededpayment")->setCancelUrl(BASE_URL."/overview.php?&action=cancledpayment");
 		$payment = new Payment();
-		$payment->setIntent("sale")
-			->setPayer($payer)
-			->setRedirectUrls($redirectUrls)
-			->setTransactions(array($transaction));
-		
+		$payment->setIntent("sale")->setPayer($payer)->setRedirectUrls($redirectUrls)->setTransactions(array($transaction));
 		$request = clone $payment;
-		
 		try {
 			$payment->create($this->PaypalApicontext);
 		} catch (Exception $ex) {
 			Debugteam\Baselib\ResultPrinter::printError("Created Payment Using PayPal. Please visit the URL to Approve.", "Payment", null, $request, $ex);
-			exit(1);
+			//trigger_error('Paypal Zahlung fehlgeschlagen! Achtung! Dies ist keine Übung!!!');
 		}	
-		
 		$approvalUrl = $payment->getApprovalLink();
-		
 		Debugteam\Baselib\ResultPrinter::printResult("Created Payment Using PayPal. Please visit the URL to Approve.", "Payment", "<a href='$approvalUrl' >$approvalUrl</a>", $request, $payment);
-		
 		return $payment;
-
     }
 
 	public function execute_payment() {
