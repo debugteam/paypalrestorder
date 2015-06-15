@@ -16,25 +16,36 @@ class PaypalRestOrder {
 
 	protected function create_item_list($order) {
 		foreach($order->products as $product) {
-			if((trim($product['qty'])=='')) {
+			if((trim($product['qty'])!='')) {
 				$item = new Item();
-				$item->setName($product['name'])->setCurrency($order->info['currency'])->setQuantity($product['qty'])->setSku($product['id'])->setPrice(number_format($product['final_price'],2,'.',''));
-				$item[] = $item;
+				$this->item->setName($product['name'])->setCurrency($order->info['currency'])->setQuantity($product['qty'])->setSku($product['id'])->setPrice(number_format($product['final_price'],2,'.',''));
+				$this->item[] = $item;
+				var_dump($item);
+				exit;
 			}
 		}
 		if ($order->getBearbeitungsgebuehr()) {
 			$item = new Item();
-			$item->setName('Bearbeitungsgebühren')->setCurrency($order->info['currency'])->setQuantity(1)->setSku(9999)->setPrice(number_format($order->getBearbeitungsgebuehr(),2,'.',''));
-			$item[] = $item;			
+			$this->item->setName('Bearbeitungsgebühren')->setCurrency($order->info['currency'])->setQuantity(1)->setSku(9999)->setPrice(number_format($order->getBearbeitungsgebuehr(),2,'.',''));
+			$this->item[] = $item;			
 		}
 		if ($order->getActioncodeDiscount()) {
 			$item = new Item();
-			$item->setName($order->actioncode['description'])->setCurrency($order->info['currency'])->setQuantity(1)->setSku(9998)->setPrice(0 - number_format($order->actioncode['discount'],2,'.',''));
-			$item[] = $item;
-		}		
+			$this->item->setName($order->actioncode['description'])->setCurrency($order->info['currency'])->setQuantity(1)->setSku(9998)->setPrice(0 - number_format($order->actioncode['discount'],2,'.',''));
+			$this->item[] = $item;
+		}
 		$itemList = new ItemList();
-		$itemList->setItems($item);
+		$itemList->setItems($this->item);
 		return $itemList;
+	}
+	
+	
+	protected function calculate_total($itemList) {
+		$this->subtotal = 0;
+		$this->total = 0;
+		for ($i=0,$cnt = count($this->item);$i<$cnt;$i++) {
+			$this->subtotal += $this->item;
+		}
 	}
 		
     public function create_payment_link($order,$custom,$orderdesc='Testzahlung für Testartikel') {
@@ -48,7 +59,7 @@ class PaypalRestOrder {
 		$transaction = new Transaction();
 		$transaction->setAmount($amount)->setItemList($itemList)->setDescription($orderdesc)->setInvoiceNumber($custom);
 		$redirectUrls = new RedirectUrls();
-		$redirectUrls->setReturnUrl(BASE_URL."/danke.php?action=succeededpayment")->setCancelUrl(BASE_URL."/overview.php?&action=cancledpayment");
+		$redirectUrls->setReturnUrl(BASE_URL."danke.php?action=succeededpayment")->setCancelUrl(BASE_URL."overview.php?&action=cancledpayment");
 		$payment = new Payment();
 		$payment->setIntent("sale")->setPayer($payer)->setRedirectUrls($redirectUrls)->setTransactions(array($transaction));
 		$request = clone $payment;
