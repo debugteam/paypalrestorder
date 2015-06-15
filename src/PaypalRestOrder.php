@@ -20,8 +20,6 @@ class PaypalRestOrder {
 				$item = new Item();
 				$this->item->setName($product['name'])->setCurrency($order->info['currency'])->setQuantity($product['qty'])->setSku($product['id'])->setPrice(number_format($product['final_price'],2,'.',''));
 				$this->item[] = $item;
-				var_dump($item);
-				exit;
 			}
 		}
 		if ($order->getBearbeitungsgebuehr()) {
@@ -42,10 +40,10 @@ class PaypalRestOrder {
 	
 	protected function calculate_total($itemList) {
 		$this->subtotal = 0;
-		$this->total = 0;
 		for ($i=0,$cnt = count($this->item);$i<$cnt;$i++) {
-			$this->subtotal += $this->item;
+			$this->subtotal += $this->item[$i]->price;
 		}
+		$this->total = $this->subtotal;
 	}
 		
     public function create_payment_link($order,$custom,$orderdesc='Testzahlung für Testartikel') {
