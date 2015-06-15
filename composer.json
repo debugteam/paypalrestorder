@@ -1,5 +1,5 @@
 {
-    "name": "debugteam/paypal-rest-orderclass",
+    "name": "debugteam/paypalrest",
     "description": "Provide Paypal Rest API 2 Orderobject connection",
     "authors": [
         {
@@ -9,7 +9,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Debugteam\\Paypalrestorderclass\\": "src"
+            "Debugteam\\Paypalrest\\": "src"
         }
     },
     "require": {
