@@ -18,18 +18,18 @@ class PaypalRestOrder {
 		foreach($order->products as $product) {
 			if((trim($product['qty'])!='')) {
 				$item = new Item();
-				$this->item->setName($product['name'])->setCurrency($order->info['currency'])->setQuantity($product['qty'])->setSku($product['id'])->setPrice(number_format($product['final_price'],2,'.',''));
+				$item->setName($product['name'])->setCurrency($order->info['currency'])->setQuantity($product['qty'])->setSku($product['id'])->setPrice(number_format($product['final_price'],2,'.',''));
 				$this->item[] = $item;
 			}
 		}
 		if ($order->getBearbeitungsgebuehr()) {
 			$item = new Item();
-			$this->item->setName('Bearbeitungsgebühren')->setCurrency($order->info['currency'])->setQuantity(1)->setSku(9999)->setPrice(number_format($order->getBearbeitungsgebuehr(),2,'.',''));
+			$item->setName('Bearbeitungsgebühren')->setCurrency($order->info['currency'])->setQuantity(1)->setSku(9999)->setPrice(number_format($order->getBearbeitungsgebuehr(),2,'.',''));
 			$this->item[] = $item;			
 		}
 		if ($order->getActioncodeDiscount()) {
 			$item = new Item();
-			$this->item->setName($order->actioncode['description'])->setCurrency($order->info['currency'])->setQuantity(1)->setSku(9998)->setPrice(0 - number_format($order->actioncode['discount'],2,'.',''));
+			$item->setName($order->actioncode['description'])->setCurrency($order->info['currency'])->setQuantity(1)->setSku(9998)->setPrice(0 - number_format($order->actioncode['discount'],2,'.',''));
 			$this->item[] = $item;
 		}
 		$itemList = new ItemList();
