@@ -16,7 +16,7 @@ class PaypalRestOrder {
 
 	protected function create_item_list($order) {
 		foreach($order->products as $product) {
-			if(!empty(trim($product['qty']))) {
+			if((trim($product['qty'])=='')) {
 				$item = new Item();
 				$item->setName($product['name'])->setCurrency($order->info['currency'])->setQuantity($product['qty'])->setSku($product['id'])->setPrice(number_format($product['final_price'],2,'.',''));
 				$item[] = $item;
