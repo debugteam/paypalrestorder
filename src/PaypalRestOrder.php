@@ -1,6 +1,6 @@
 <?php
 
-namespace Debugteam\Paypalrestorderclass;
+namespace Debugteam\Paypalrest;
 
 use PayPal\Api\Amount;
 use PayPal\Api\Details;
