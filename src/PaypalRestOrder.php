@@ -55,11 +55,11 @@ class PaypalRestOrder {
 		try {
 			$payment->create($this->PaypalApicontext);
 		} catch (Exception $ex) {
-			Debugteam\Baselib\ResultPrinter::printError("Created Payment Using PayPal. Please visit the URL to Approve.", "Payment", null, $request, $ex);
+			\Debugteam\Baselib\ResultPrinter::printError("Created Payment Using PayPal. Please visit the URL to Approve.", "Payment", null, $request, $ex);
 			//trigger_error('Paypal Zahlung fehlgeschlagen! Achtung! Dies ist keine Übung!!!');
 		}	
 		$approvalUrl = $payment->getApprovalLink();
-		Debugteam\Baselib\ResultPrinter::printResult("Created Payment Using PayPal. Please visit the URL to Approve.", "Payment", "<a href='$approvalUrl' >$approvalUrl</a>", $request, $payment);
+		\Debugteam\Baselib\ResultPrinter::printResult("Created Payment Using PayPal. Please visit the URL to Approve.", "Payment", "<a href='$approvalUrl' >$approvalUrl</a>", $request, $payment);
 		return $payment;
     }
 
@@ -70,24 +70,24 @@ class PaypalRestOrder {
 		$execution->setPayerId($_GET['PayerID']);		
 		try {
 			$result = $payment->execute($execution, $this->PaypalApicontext);
-			Debugteam\Baselib\ResultPrinter::printResult("Executed Payment", "Payment", $payment->getId(), $execution, $result);
+			\Debugteam\Baselib\ResultPrinter::printResult("Executed Payment", "Payment", $payment->getId(), $execution, $result);
 	        try {
 		        $payment = Payment::get($paymentId, $this->PaypalApicontext);
 			} catch (Exception $ex) {
-				Debugteam\Baselib\ResultPrinter::printError("Get Payment", "Payment", null, null, $ex);
+				\Debugteam\Baselib\ResultPrinter::printError("Get Payment", "Payment", null, null, $ex);
 				exit(1);
 				// foo
 			}
 		} catch (Exception $ex) {		
-			Debugteam\Baselib\ResultPrinter::printError("Executed Payment", "Payment", null, null, $ex);
+			\Debugteam\Baselib\ResultPrinter::printError("Executed Payment", "Payment", null, null, $ex);
 			exit(1);
 		}		
-		Debugteam\Baselib\ResultPrinter::printResult("Get Payment", "Payment", $payment->getId(), null, $payment);
+		\Debugteam\Baselib\ResultPrinter::printResult("Get Payment", "Payment", $payment->getId(), null, $payment);
 		return $payment;			
 	}
 	
 	public function failed_payment() {
-		Debugteam\Baselib\ResultPrinter::printResult("User Cancelled the Approval", null);
+		\Debugteam\Baselib\ResultPrinter::printResult("User Cancelled the Approval", null);
 		exit;			
 	}
 	
