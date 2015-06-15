@@ -38,7 +38,7 @@ class PaypalRestOrder {
 	}
 	
 	
-	protected function calculate_total($itemList) {
+	protected function calculate_total() {
 		$this->subtotal = 0;
 		for ($i=0,$cnt = count($this->item);$i<$cnt;$i++) {
 			$this->subtotal += $this->item[$i]->price;
@@ -50,10 +50,11 @@ class PaypalRestOrder {
 		$payer = new Payer();
 		$payer->setPaymentMethod("paypal");
 		$itemList = $this->create_item_list($order);
+		$this->calculate_total();
 		$details = new Details();
-		$details->setShipping(0)->setTax(0)->setSubtotal(1);
+		$details->setShipping(0)->setTax(0)->setSubtotal($this->subtotal);
 		$amount = new Amount();
-		$amount->setCurrency($order->info['currency'])->setTotal(1)->setDetails($details);
+		$amount->setCurrency($order->info['currency'])->setTotal($this->total)->setDetails($details);
 		$transaction = new Transaction();
 		$transaction->setAmount($amount)->setItemList($itemList)->setDescription($orderdesc)->setInvoiceNumber($custom);
 		$redirectUrls = new RedirectUrls();
