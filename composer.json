@@ -9,7 +9,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Debugteam\\Baselib\\": "src"
+            "Debugteam\\Paypalrestorderclass\\": "src"
         }
     },
     "require": {
