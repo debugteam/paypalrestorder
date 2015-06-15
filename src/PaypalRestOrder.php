@@ -36,15 +36,7 @@ class PaypalRestOrder {
 		$itemList->setItems($item);
 		return $itemList;
 	}
-	
-	protected function calculate_totals() {
 		
-	}
-	
-	protected function set_defaults() {
-		
-	}
-
     public function create_payment_link($order,$custom,$orderdesc='Testzahlung für Testartikel') {
 		$payer = new Payer();
 		$payer->setPaymentMethod("paypal");
@@ -84,6 +76,7 @@ class PaypalRestOrder {
 			} catch (Exception $ex) {
 				Debugteam\Baselib\ResultPrinter::printError("Get Payment", "Payment", null, null, $ex);
 				exit(1);
+				// foo
 			}
 		} catch (Exception $ex) {		
 			Debugteam\Baselib\ResultPrinter::printError("Executed Payment", "Payment", null, null, $ex);
