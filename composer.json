@@ -1,0 +1,20 @@
+{
+    "name": "debugteam/paypal-rest-orderclass",
+    "description": "Provide Paypal Rest API 2 Orderobject connection",
+    "authors": [
+        {
+            "name": "Jochen Schultz",
+            "email": "jschultz@php.net"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Debugteam\\Baselib\\": "src"
+        }
+    },
+    "require": {
+        "php": ">=5.4",
+        "debugteam/baselib": "dev-master",
+        "paypal/rest-api-sdk-php": "v1.4.0"
+    }
+}
