@@ -37,39 +37,52 @@ class PaypalRestOrder {
 		return $itemList;
 	}
 	
-	
 	protected function calculate_total() {
 		$this->subtotal = 0;
 		for ($i=0,$cnt = count($this->item);$i<$cnt;$i++) {
-			$this->subtotal += $this->item[$i]->price;
+			$this->subtotal += ($this->item[$i]->price * $this->item[$i]->quantity);
 		}
 		$this->total = $this->subtotal;
 	}
-		
+	
+	protected function set_details() {
+		$this->details = new Details();
+		$this->details->setShipping(0)->setTax(0)->setSubtotal($this->subtotal);
+	}
+	
+	protected function set_transaction($order,$orderdesc,$custom,$itemList) {
+		$amount = new Amount();
+		$amount->setCurrency($order->info['currency'])->setTotal($this->total)->setDetails($this->details);
+		$this->transaction = new Transaction();
+		$this->transaction->setAmount($amount)->setItemList($itemList)->setDescription($orderdesc)->setInvoiceNumber($custom);
+	}
+	
+	protected function save_order($paypaltoken) {
+		$SQL ="UPDATE warenkoerbe SET paypal_token = '".$paypaltoken."'";
+		$this->db->db_query($SQL,__FILE__,__LINE__);
+		$SQL ="UPDATE warenkorbhistory SET paypal_token = '".$paypaltoken."'";
+		$this->db->db_query($SQL,__FILE__,__LINE__);
+	}
+	
     public function create_payment_link($order,$custom,$orderdesc='Testzahlung für Testartikel') {
 		$payer = new Payer();
 		$payer->setPaymentMethod("paypal");
 		$itemList = $this->create_item_list($order);
 		$this->calculate_total();
-		$details = new Details();
-		$details->setShipping(0)->setTax(0)->setSubtotal($this->subtotal);
-		$amount = new Amount();
-		$amount->setCurrency($order->info['currency'])->setTotal($this->total)->setDetails($details);
-		$transaction = new Transaction();
-		$transaction->setAmount($amount)->setItemList($itemList)->setDescription($orderdesc)->setInvoiceNumber($custom);
-		$redirectUrls = new RedirectUrls();
-		$redirectUrls->setReturnUrl(BASE_URL."danke.php?action=succeededpayment")->setCancelUrl(BASE_URL."overview.php?&action=cancledpayment");
+		$this->set_details();
+		$this->set_transaction($order,$orderdesc,$custom,$itemList);
 		$payment = new Payment();
-		$payment->setIntent("sale")->setPayer($payer)->setRedirectUrls($redirectUrls)->setTransactions(array($transaction));
-		$request = clone $payment;
+		$payment->setIntent("sale")->setPayer($payer)->setRedirectUrls($this->redirectUrls)->setTransactions(array($this->transaction));
+		//$request = clone $payment;
 		try {
 			$payment->create($this->PaypalApicontext);
 		} catch (Exception $ex) {
-			\Debugteam\Baselib\ResultPrinter::printError("Created Payment Using PayPal. Please visit the URL to Approve.", "Payment", null, $request, $ex);
+		//	\Debugteam\Baselib\ResultPrinter::printError("Created Payment Using PayPal. Please visit the URL to Approve.", "Payment", null, $request, $ex);
 			//trigger_error('Paypal Zahlung fehlgeschlagen! Achtung! Dies ist keine Übung!!!');
 		}	
-		$approvalUrl = $payment->getApprovalLink();
-		\Debugteam\Baselib\ResultPrinter::printResult("Created Payment Using PayPal. Please visit the URL to Approve.", "Payment", "<a href='$approvalUrl' >$approvalUrl</a>", $request, $payment);
+		//$approvalUrl = $payment->getApprovalLink();
+		//\Debugteam\Baselib\ResultPrinter::printResult("Created Payment Using PayPal. Please visit the URL to Approve.", "Payment", "<a href='$approvalUrl' >$approvalUrl</a>", $request, $payment);
+		$this->save_order($payment->id);
 		return $payment;
     }
 
@@ -77,22 +90,25 @@ class PaypalRestOrder {
 		$paymentId = $_GET['paymentId'];
 		$payment = Payment::get($paymentId, $this->PaypalApicontext);	
 		$execution = new PaymentExecution();
-		$execution->setPayerId($_GET['PayerID']);		
+		$execution->setPayerId($_GET['PayerID']);
+		
+		
 		try {
 			$result = $payment->execute($execution, $this->PaypalApicontext);
-			\Debugteam\Baselib\ResultPrinter::printResult("Executed Payment", "Payment", $payment->getId(), $execution, $result);
+			#\Debugteam\Baselib\ResultPrinter::printResult("Executed Payment", "Payment", $payment->getId(), $execution, $result);
 	        try {
 		        $payment = Payment::get($paymentId, $this->PaypalApicontext);
 			} catch (Exception $ex) {
-				\Debugteam\Baselib\ResultPrinter::printError("Get Payment", "Payment", null, null, $ex);
-				exit(1);
+				#\Debugteam\Baselib\ResultPrinter::printError("Get Payment", "Payment", null, null, $ex);
+				exit('failed');
 				// foo
 			}
 		} catch (Exception $ex) {		
-			\Debugteam\Baselib\ResultPrinter::printError("Executed Payment", "Payment", null, null, $ex);
-			exit(1);
+			#\Debugteam\Baselib\ResultPrinter::printError("Executed Payment", "Payment", null, null, $ex);
+			exit('failed');
 		}		
-		\Debugteam\Baselib\ResultPrinter::printResult("Get Payment", "Payment", $payment->getId(), null, $payment);
+		#\Debugteam\Baselib\ResultPrinter::printResult("Get Payment", "Payment", $payment->getId(), null, $payment);
+			
 		return $payment;			
 	}
 	
@@ -107,11 +123,14 @@ class PaypalRestOrder {
 			exit;
 		}
 		$this->PaypalApicontext = \Debugteam\Baselib\PaypalHelper::getApiContext($clientId, $clientSecret);
+		$this->redirectUrls = new RedirectUrls();
+		$this->redirectUrls->setReturnUrl(BASE_URL."danke.php?action=succeededpayment")->setCancelUrl(BASE_URL."overview.php?&action=cancledpayment");		
+		
 		// need db connection?
-		//$this->db = new \Debugteam\Baselib\Db;
-		//if (!$this->db->is_open_con()) {
-		//	$this->db->db_open();
-		//}
+		$this->db = new \Debugteam\Baselib\Db;
+		if (!$this->db->is_open_con()) {
+			$this->db->db_open();
+		}
     }
 
 }
