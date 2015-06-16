@@ -1,4 +1,8 @@
 <?php
+/*
+ * change this file with pull request to https://github.com/debugteam/paypalrestorder
+ * 
+ */
 
 namespace Debugteam\Paypalrest;
 
@@ -49,23 +53,24 @@ class PaypalRestOrder {
 		$this->details = new Details();
 		$this->details->setShipping(0)->setTax(0)->setSubtotal($this->subtotal);
 	}
-	
+
 	private function set_transaction($order,$orderdesc,$custom,$itemList) {
 		$amount = new Amount();
 		$amount->setCurrency($order->info['currency'])->setTotal($this->total)->setDetails($this->details);
 		$this->transaction = new Transaction();
 		$this->transaction->setAmount($amount)->setItemList($itemList)->setDescription($orderdesc)->setInvoiceNumber($custom);
 	}
-	
+
 	private function save_order($order,$custom,$paymentid) {
 		$SQL ="UPDATE warenkoerbe SET paypal_token = '".$paymentid."' WHERE paypal_token='".$custom."'";
 		$this->db->db_query($SQL,__FILE__,__LINE__);
 		$SQL ="UPDATE warenkorbhistory SET paypal_token = '".$paymentid."' WHERE paypal_token='".$custom."'";
 		$this->db->db_query($SQL,__FILE__,__LINE__);
 		$order->warenkorbID = $paymentid;
+		$_SESSION['custom'] = $paymentid;
 		$order->save();
 	}
-	
+
     public function create_payment_link($order,$custom,$orderdesc='Testzahlung für Testartikel') {
 		$payer = new Payer();
 		$payer->setPaymentMethod("paypal");
@@ -87,7 +92,7 @@ class PaypalRestOrder {
 		$this->save_order($order,$custom,$payment->id);
 		return $payment;
     }
-	
+
 	/**
 	 * 
 	 * @param type $order
@@ -127,7 +132,7 @@ class PaypalRestOrder {
 		}
 	}
 	
-	/**
+	/** -- currently unused 
 	 * recieve paymentinfo via givven $paymentId (customid/paypal_token)
 	 * 
 	 * @param type $paymentId
@@ -186,8 +191,7 @@ class PaypalRestOrder {
 		$this->PaypalApicontext = \Debugteam\Baselib\PaypalHelper::getApiContext($clientId, $clientSecret);
 		$this->redirectUrls = new RedirectUrls();
 		$this->redirectUrls->setReturnUrl(BASE_URL."danke.php?action=succeededpayment")->setCancelUrl(BASE_URL."overview.php?&action=cancledpayment");		
-		
-		// need db connection?
+
 		$this->db = new \Debugteam\Baselib\Db;
 		if (!$this->db->is_open_con()) {
 			$this->db->db_open();
