@@ -57,11 +57,13 @@ class PaypalRestOrder {
 		$this->transaction->setAmount($amount)->setItemList($itemList)->setDescription($orderdesc)->setInvoiceNumber($custom);
 	}
 	
-	protected function save_order($paypaltoken) {
-		$SQL ="UPDATE warenkoerbe SET paypal_token = '".$paypaltoken."'";
+	protected function save_order($order,$custom,$paymentid) {
+		$SQL ="UPDATE warenkoerbe SET paypal_token = '".$paymentid."' WHERE paypal_token='".$custom."'";
 		$this->db->db_query($SQL,__FILE__,__LINE__);
-		$SQL ="UPDATE warenkorbhistory SET paypal_token = '".$paypaltoken."'";
+		$SQL ="UPDATE warenkorbhistory SET paypal_token = '".$paymentid."' WHERE paypal_token='".$custom."'";
 		$this->db->db_query($SQL,__FILE__,__LINE__);
+		$order->warenkorbID = $paymentid;
+		$order->save();
 	}
 	
     public function create_payment_link($order,$custom,$orderdesc='Testzahlung für Testartikel') {
@@ -82,10 +84,10 @@ class PaypalRestOrder {
 		}	
 		//$approvalUrl = $payment->getApprovalLink();
 		//\Debugteam\Baselib\ResultPrinter::printResult("Created Payment Using PayPal. Please visit the URL to Approve.", "Payment", "<a href='$approvalUrl' >$approvalUrl</a>", $request, $payment);
-		$this->save_order($payment->id);
+		$this->save_order($order,$custom,$payment->id);
 		return $payment;
     }
-
+	
 	public function execute_payment() {
 		$paymentId = $_GET['paymentId'];
 		$payment = Payment::get($paymentId, $this->PaypalApicontext);	
