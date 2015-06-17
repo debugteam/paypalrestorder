@@ -251,11 +251,6 @@ class PaypalRestOrder {
 		return $paymentcompleted;
 	}
 
-	public function failed_payment() {
-		\Debugteam\Baselib\ResultPrinter::printResult("User Cancelled the Approval", null);
-		exit;
-	}
-
     public function __construct($clientId='',$clientSecret='') {
 		if (empty($clientId)||empty($clientSecret)) {
 			trigger_error('Hey developer (future me): you need to provide credentials to use the Paypal Rest Api! Go get them here: https://developer.paypal.com/webapps/developer/applications/myapps');
