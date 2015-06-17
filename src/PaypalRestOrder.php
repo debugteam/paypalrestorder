@@ -206,25 +206,6 @@ class PaypalRestOrder {
 		}
 	}
 
-	/** -- currently unused
-	 * recieve paymentinfo via givven $paymentId (customid/paypal_token)
-	 *
-	 * @param type $paymentId
-	 * @return obj $payment
-	 */
-	public function get_payment($paymentId) {
-		try {
-			$payment = Payment::get($paymentId, $this->PaypalApicontext);
-		} catch (Exception $ex) {
-			// NOTE: PLEASE DO NOT USE RESULTPRINTER CLASS IN YOUR ORIGINAL CODE. FOR SAMPLE ONLY
-			\Debugteam\Baselib\ResultPrinter::printError("Get Payment", "Payment", null, null, $ex);
-			exit(1);
-		}
-		// NOTE: PLEASE DO NOT USE RESULTPRINTER CLASS IN YOUR ORIGINAL CODE. FOR SAMPLE ONLY
-		 \Debugteam\Baselib\ResultPrinter::printResult("Get Payment", "Payment", $payment->getId(), null, $payment);
-		return $payment;
-	}
-
 	public function execute_payment($order) {
 		$paymentId = $_GET['paymentId'];
 		$payment = Payment::get($paymentId, $this->PaypalApicontext);
