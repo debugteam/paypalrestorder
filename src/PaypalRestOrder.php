@@ -108,6 +108,9 @@ class PaypalRestOrder {
 		$order->save();
 	}
 
+	/*
+	 * Payment status "Pending" will be rechecked by IPN
+	 */	
 	private function payment_save_pending($order,$executedpayment) {
 		$order->info['payment_status'] = 'Pending';
 		$order->txn_id = $executedpayment->transactions[0]->related_resources[0]->sale->id;
@@ -123,6 +126,9 @@ class PaypalRestOrder {
 		$order->save();
 	}
 
+	/*
+	 * for this cases we will need manual inspection... therefor we need some kind of notification like email to debugteam
+	 */
 	private function payment_save_observation($order,$executedpayment) {
 		$order->info['payment_status'] = 'Observation';
 		$order->txn_id = $executedpayment->transactions[0]->related_resources[0]->sale->id;
