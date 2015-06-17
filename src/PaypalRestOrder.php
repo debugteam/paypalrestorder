@@ -171,10 +171,19 @@ class PaypalRestOrder {
 			exit('failed');
 		}		
 		#\Debugteam\Baselib\ResultPrinter::printResult("Get Payment", "Payment", $payment->getId(), null, $payment);
-			
 		$paymentcompleted = new \stdClass();
 		$paymentcompleted->next = $this->check_payment_state($executedpayment,$order,$paymentId);
 		$paymentcompleted->payment = $executedpayment;
+		$order->customer['first_name']		=  $executedpayment->payer->payer_info->first_name;
+		$order->customer['last_name']		=  $executedpayment->payer->payer_info->last_name;
+		$order->customer['email_address']	=  $executedpayment->payer->payer_info->email;
+		//$order->customer['phone']			=  $this->keyarray['contact_phone'];
+		$order->customer['phone']			=  '';
+		$order->customer['address_street']	=  $executedpayment->payer->payer_info->shipping_address->line1;
+		$order->customer['address_zip']		=  $executedpayment->payer->payer_info->shipping_address->postal_code;
+		$order->customer['address_city']	=  $executedpayment->payer->payer_info->shipping_address->city;
+		$order->customer['address_country']	=  $executedpayment->payer->payer_info->shipping_address->country_code;		
+		$order->save();
 		return $paymentcompleted;
 	}
 	
