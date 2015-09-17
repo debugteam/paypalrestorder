@@ -1,5 +1,7 @@
 <?php
 
+namespace Debugteam\Paypalrest;
+
 define("USE_SANDBOX", 1);
 
 /*
@@ -7,13 +9,12 @@ define("USE_SANDBOX", 1);
  *
  */
 
-namespace Debugteam\Paypalrest;
-
 use PayPal\Api\Payment;
 
 class PaypalIPNCheck {
 
 	protected function read_ipn_and_make_request() {
+		trigger_error('read ipn and build answer');
 		$raw_post_data = file_get_contents('php://input');
 		$raw_post_array = explode('&', $raw_post_data);
 		$myPost = array();
@@ -35,9 +36,11 @@ class PaypalIPNCheck {
 			}
 			$this->req .= "&$key=$value";
 		}
+		
 	}
 
 	protected function curl_connect() {
+		trigger_error('curl connect to sandbox');
 		$this->ch = curl_init($this->paypal_url);
 		if ($this->ch == FALSE) {
 			return FALSE;
@@ -63,10 +66,12 @@ class PaypalIPNCheck {
 		// of the certificate as shown below. Ensure the file is readable by the webserver.
 		// This is mandatory for some environments.
 		//$cert = __DIR__ . "./cacert.pem";
-		//curl_setopt($this->ch, CURLOPT_CAINFO, $cert);		
+		//curl_setopt($this->ch, CURLOPT_CAINFO, $cert);	
+		
 	}
 
 	protected function send_answer() {
+		trigger_error('sent ipn answer');
 		$this->res = curl_exec($this->ch);
 		if (curl_errno($this->ch) != 0) { // cURL error
 			if (DEBUG == true) {
@@ -86,15 +91,20 @@ class PaypalIPNCheck {
 		// Split response headers and payload, a better way for strcmp
 		$tokens = explode("\r\n\r\n", trim($this->res));
 		$this->res = trim(end($tokens));
+		
 	}
 
 	private function save_order($order, $custom, $paymentid) {
+		trigger_error('save IPN result');
 		/* business logic for activation of vouchers */
+		/*
 		$SQL = "UPDATE warenkoerbe SET paypal_token = '" . $paymentid . "' WHERE paypal_token='" . $custom . "'";
 		$this->db->db_query($SQL, __FILE__, __LINE__);
 		$order->warenkorbID = $paymentid;
 		$_SESSION['custom'] = $paymentid;
 		$order->save();
+		*/
+		
 	}
 	
 	/** 
@@ -104,6 +114,7 @@ class PaypalIPNCheck {
 	 * @return obj $payment
 	 */
 	public function get_payment($paymentId) {
+		trigger_error('recieve payment data');
 		try {
 			$payment = Payment::get($paymentId, $this->PaypalApicontext);
 		} catch (Exception $ex) {
@@ -113,10 +124,11 @@ class PaypalIPNCheck {
 		}
 		// NOTE: PLEASE DO NOT USE RESULTPRINTER CLASS IN YOUR ORIGINAL CODE. FOR SAMPLE ONLY
 		\Debugteam\Baselib\ResultPrinter::printResult("Get Payment", "Payment", $payment->getId(), null, $payment);
+		
 		return $payment;
+		
 	}	
-	
-	
+
 	protected function check_payment() {
 		if (strcmp($this->res, "VERIFIED") == 0) {
 			
@@ -162,11 +174,13 @@ class PaypalIPNCheck {
 		}
 	}
 
-	public function check_ipn_execute() {
+	public function check_ipn_execute($order,$custom,$payerId) {
+		trigger_error('check_ipn_execute start');
 		$this->curl_connect();
 		$this->read_ipn_and_make_request();
 		$this->send_answer();
 		$this->check_payment();
+		
 	}
 
 	public function __construct($clientId = '', $clientSecret = '') {
