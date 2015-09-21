@@ -13,8 +13,8 @@
         }
     },
     "require": {
-        "php": ">=5.4",
+		"php": ">=5.4",
 		"debugteam/baselib": "1.0.x-dev",
-        "paypal/rest-api-sdk-php": "v1.4.0"
+		"paypal/rest-api-sdk-php": "v1.4.0"
     }
 }
