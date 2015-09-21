@@ -1,7 +1,7 @@
 <?php
 namespace Debugteam\Paypalrest\Helper;
 
-class PaypalHelper {
+class hPaypalHelper {
 	
 	public static function getApiContext() {
 

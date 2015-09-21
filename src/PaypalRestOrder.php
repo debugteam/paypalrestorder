@@ -311,7 +311,7 @@ class PaypalRestOrder {
 	
     public function __construct() {
 		$this->consistancy_check();
-		$this->PaypalApicontext = Helper\PaypalHelper::getApiContext();
+		$this->PaypalApicontext = Helper\hPaypalHelper::getApiContext();
 		$this->redirectUrls = new RedirectUrls();
 		$this->redirectUrls->setReturnUrl(PAYPAL_RETURN_URL)->setCancelUrl(PAYPAL_CANCLE_URL);
     }

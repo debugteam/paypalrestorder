@@ -3,7 +3,7 @@
 namespace Debugteam\Paypalrest\Traits;
 
 trait tCustomer {
-	
+
 	private $firstname = '';
 	private $lastname = '';
 	private $email = '';
@@ -12,7 +12,7 @@ trait tCustomer {
 	private $adresszip = '';
 	private $city = '';
 	private $country = '';
-	
+
 	public function setFirstName($firstname) {
 		$this->firstname = $firstname;
 		return $this;
