@@ -1,16 +1,16 @@
 {
     "name": "debugteam/paypalrest",
     "description": "Abstraction of Paypal Rest API",
-    "authors": [
-        {
-            "name": "Jochen Schultz",
-            "email": "jschultz@php.net"
-        }
-    ],
+	"authors": [
+		{
+			"name": "Jochen Schultz",
+			"email": "jschultz@php.net"
+		}
+	],
     "autoload": {
-        "psr-4": {
-            "Debugteam\\Paypalrest\\": "src"
-        }
+		"psr-4": {
+			"Debugteam\\Paypalrest\\": "src"
+		}
     },
     "require": {
 		"php": ">=5.4",
