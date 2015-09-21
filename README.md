@@ -112,7 +112,8 @@ since i don't know your backend :P
 
 	// create paymentlink - customer clicks it and processes payment
 	// we get a paymentid, which gets saved into order object
-	$paymentlink = \Debugteam\Paypalrest\PaypalRestOrder::factory()->create_payment_link($order);
+	$paymentlink = \Debugteam\Paypalrest\PaypalRestOrder::factory()
+			->create_payment_link($order);
 	echo $paymentlink;
 
  ?>
@@ -131,8 +132,8 @@ since i don't know your backend :P
 	include('config.inc.php');
  
 	// the payment is checked on paypal server with paymentid saved in the order object
-	// plus the payers data is recieved and saved in a customer object within the order object
-	// If you don't want to save the order/customer data, just return 'foo'; on save methods :P
+	// plus the payers data is recieved and saved in customer object within the order object
+	// If you don't want to save the order/customer data, just return 'foo'; on save methods 
  	$paymentcompleted = PaypalRestOrder::factory()->execute_payment($order);
  	if ($paymentcompleted->next!==false) {
  		if ($paymentcompleted->next=='completed') {
