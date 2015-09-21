@@ -1,6 +1,6 @@
 <?php
 
-namespace Debugteam\Paypalrest\Models;
+namespace Debugteam\Paypalrest\Traits;
 
 trait tProduct {
 	
