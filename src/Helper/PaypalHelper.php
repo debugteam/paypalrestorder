@@ -3,7 +3,7 @@ namespace Debugteam\Paypalrest\Helper;
 
 class PaypalHelper {
 	
-	public static function getApiContext($clientId, $clientSecret) {
+	public static function getApiContext() {
 
 		// #### SDK configuration
 		// Register the sdk_config.ini file as the configuration source.
@@ -13,24 +13,25 @@ class PaypalHelper {
 
 		$apiContext = new \PayPal\Rest\ApiContext(
 			new \PayPal\Auth\OAuthTokenCredential(
-				$clientId,
-				$clientSecret
+				PAYPAL_CLIENT_ID,
+				PAYPAL_CLIENT_SECRET
 			)
 		);
 
 		$apiContext->setConfig(
 			array(
-				'mode' => 'sandbox',
-				'log.LogEnabled' => true,
-				'log.FileName' => LOGFILE_PP,
-				'log.LogLevel' => 'DEBUG', // PLEASE USE `FINE` LEVEL FOR LOGGING IN LIVE ENVIRONMENTS
-				'validation.level' => 'log',
-				'cache.enabled' => true,
-				// 'http.CURLOPT_CONNECTTIMEOUT' => 30
-				// 'http.headers.PayPal-Partner-Attribution-Id' => '123123123'
+				'mode' => PAYPAL_HELPER_MODE,
+				'log.LogEnabled' => PAYPAL_HELPER_LOG_ENABLED,
+				'log.FileName' => PAYPAL_HELPER_LOG_FILENAME,
+				'log.LogLevel' => PAYPAL_HELPER_LOG_LEVEL,
+				'validation.level' => PAYPAL_HELPER_VALIDATION_LEVEL,
+				'cache.enabled' => PAYPAL_HELPER_CACHE_ENABLED,
+				// 'http.CURLOPT_CONNECTTIMEOUT' => PAYPAL_HELPER_CURLOPT_CONNECTTIMEOUT
+				// 'http.headers.PayPal-Partner-Attribution-Id' 
+				// => PAYPAL_HELPER_PARTNER_ATTRIBUTION_ID
 			)
 		);
 		return $apiContext;
 	}	
-	
+
 }
