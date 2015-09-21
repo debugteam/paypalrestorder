@@ -80,7 +80,7 @@ trait tOrder {
 	
 	public function getProducts() {
 		if ($this->products===false) {
-			return \Debugteam\Paypalrest\Models\Product::factory();
+			return \Product::factory();
 		}
 		return $this->products;
 	}
@@ -91,7 +91,7 @@ trait tOrder {
 	
 	public function getCustomer() {
 		if ($this->customer===false) {
-			return \Debugteam\Paypalrest\Models\Customer::factory();
+			return \Customer::factory();
 		}		
 		return $this->customer;
 	}	
