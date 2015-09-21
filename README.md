@@ -1,5 +1,5 @@
 # paypal-rest-orderclass
-## works best with the orderobject
+## Create Order, Customer and Product objects and use paypal rest api
 
 I made some traits to make it easier to implement the interfaces. 
 
